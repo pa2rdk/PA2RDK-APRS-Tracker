@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>RDKTracker</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>io.sloeber.core.inoToCpp</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.cdt.managedbuilder.core.genmakebuilder</name>
+			<triggers>clean,full,incremental,</triggers>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.cdt.managedbuilder.core.ScannerConfigBuilder</name>
+			<triggers>full,incremental,</triggers>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.cdt.core.cnature</nature>
+		<nature>org.eclipse.cdt.core.ccnature</nature>
+		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
+		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
+		<nature>io.sloeber.arduinonature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>core/core</name>
+			<type>2</type>
+			<location>/Applications/Arduino-1.8.3.app/Contents/Java/hardware/arduino/avr/cores/arduino</location>
+		</link>
+		<link>
+			<name>core/variant</name>
+			<type>2</type>
+			<location>/Applications/Arduino-1.8.3.app/Contents/Java/hardware/arduino/avr/variants/eightanaloginputs</location>
+		</link>
+		<link>
+			<name>libraries/EEPROM</name>
+			<type>2</type>
+			<location>/Applications/Arduino-1.8.3.app/Contents/Java/hardware/arduino/avr/libraries/EEPROM</location>
+		</link>
+		<link>
+			<name>libraries/LiquidCrystal_SSD1306-master</name>
+			<type>2</type>
+			<location>/Users/robertdekok/Library/Mobile Documents/com~apple~CloudDocs/ARDUINO/libraries/LiquidCrystal_SSD1306-master</location>
+		</link>
+		<link>
+			<name>libraries/RDKAPRS</name>
+			<type>2</type>
+			<location>/Users/robertdekok/Library/Mobile Documents/com~apple~CloudDocs/ARDUINO/libraries/RDKAPRS</location>
+		</link>
+		<link>
+			<name>libraries/SoftwareSerial</name>
+			<type>2</type>
+			<location>/Applications/Arduino-1.8.3.app/Contents/Java/hardware/arduino/avr/libraries/SoftwareSerial</location>
+		</link>
+		<link>
+			<name>libraries/TimerOne</name>
+			<type>2</type>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/TimerOne/1.1.0</locationURI>
+		</link>
+		<link>
+			<name>libraries/TimerOne-r11</name>
+			<type>2</type>
+			<location>/Users/robertdekok/Library/Mobile Documents/com~apple~CloudDocs/ARDUINO/libraries/TimerOne-r11</location>
+		</link>
+		<link>
+			<name>libraries/TinyGPSPlus-master</name>
+			<type>2</type>
+			<location>/Users/robertdekok/Library/Mobile Documents/com~apple~CloudDocs/ARDUINO/libraries/TinyGPSPlus-master</location>
+		</link>
+		<link>
+			<name>libraries/Wire</name>
+			<type>2</type>
+			<location>/Applications/Arduino-1.8.3.app/Contents/Java/hardware/arduino/avr/libraries/Wire</location>
+		</link>
+	</linkedResources>
+</projectDescription>
