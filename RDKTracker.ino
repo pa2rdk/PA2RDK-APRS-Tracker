@@ -1,5 +1,4 @@
 //Version 2.2 -- 02/03/2018
-//By R.J. de Kok - (c) 2018
 
 #include <RDKAPRS.h>
 #include <SoftwareSerial.h>
