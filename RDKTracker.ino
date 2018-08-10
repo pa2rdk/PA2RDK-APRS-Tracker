@@ -1,5 +1,5 @@
 //Version 2.3 -- 10/08/2018
-//- Inbouw smart beaconing en Mice by Frank CNO
+//Inbouw smart beaconing en Mice by Frank CNO
 
 #include <RDKAPRS.h>
 #include <SoftwareSerial.h>
@@ -7,7 +7,6 @@
 #include <TimerOne.h>
 #include <Wire.h>
 #include <EEPROM.h>
-
 #include <LiquidCrystal_SSD1306.h>
 
 #define button  2   //button to transmit package
@@ -79,8 +78,6 @@ struct StoreStruct {
 	byte BcnAfterTX;
 	byte txTimeOut;
 	byte isDebug;
-	unsigned long gps_kspeed;
-	unsigned long gps_course;
 };
 
 StoreStruct storage = {
@@ -109,9 +106,7 @@ StoreStruct storage = {
 		140,
 		20,
 		1,
-		0,
-		120,
-		1
+		0
 };
 
 
@@ -162,7 +157,7 @@ void loop() {
 	Serial.print(FlexibleDelay);
 
 	// Smart Beaconing
-	if (millis() - sbStart > 5000) {
+	if ((millis() - sbStart > 5000) && (gps_speed > 5)) {
 		sbCourse = (abs(gps_course - old_course));
 		if (sbCourse > 180) sbCourse = 360 - sbCourse;
 		if (sbCourse > 27) SB = 1;
@@ -1047,8 +1042,6 @@ void setup() {
 	Beacon.setDirectivity(storage.directivity);
 	Beacon.setPreamble(storage.preAmble);
 	Beacon.setTail(storage.tail);
-	Beacon.setKspeed(storage.gps_kspeed);
-	Beacon.setCourse(storage.gps_course);
 
 	Updatedelay = storage.interval * storage.multiplier;
 
@@ -1068,6 +1061,9 @@ void setup() {
 
 	timeOutTimerMillis = (long)storage.txTimeOut*1000;
 }
+
+
+
 
 
 
