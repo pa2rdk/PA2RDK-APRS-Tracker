@@ -1,4 +1,5 @@
-//Version 2.2 -- 02/03/2018
+//Version 2.3 -- 10/08/2018
+//- Inbouw smart beaconing en Mice by Frank CNO
 
 #include <RDKAPRS.h>
 #include <SoftwareSerial.h>
@@ -43,6 +44,12 @@ char receivedString[28];
 char chkGS[3] = "GS";
 static char conv_buf[16];
 
+int SB = 0;
+unsigned long old_course;
+unsigned long sbCourse;
+unsigned long sbStart = 0;
+
+
 struct StoreStruct {
 	byte chkDigit;
 	byte aprsChannel;
@@ -72,6 +79,8 @@ struct StoreStruct {
 	byte BcnAfterTX;
 	byte txTimeOut;
 	byte isDebug;
+	unsigned long gps_kspeed;
+	unsigned long gps_course;
 };
 
 StoreStruct storage = {
@@ -105,11 +114,15 @@ StoreStruct storage = {
 		1
 };
 
+
+
 void loop() {
 	float flat, flon;
 	unsigned long age;
 	unsigned long gps_speed;
 	unsigned int FlexibleDelay = Updatedelay;
+	unsigned long gps_kspeed;
+	unsigned long gps_course;
 
 	printInt(gps.satellites.value(), gps.satellites.isValid(), 5, 0);
 	printInt(gps.hdop.value(), gps.hdop.isValid(), 5, 0);
@@ -118,7 +131,8 @@ void loop() {
 	flon = gps.location.lng();
 	age = gps.location.age();
 	gps_speed = gps.speed.kmph();
-
+	gps_kspeed = gps.speed.knots();
+	gps_course = gps.course.deg();
 
 	if (!gps.location.isValid()){
 		if (storage.isDebug == 1) {
@@ -147,13 +161,22 @@ void loop() {
 
 	Serial.print(FlexibleDelay);
 
+	// Smart Beaconing
+	if (millis() - sbStart > 5000) {
+		sbCourse = (abs(gps_course - old_course));
+		if (sbCourse > 180) sbCourse = 360 - sbCourse;
+		if (sbCourse > 27) SB = 1;
+		sbStart = millis();
+		old_course = gps_course;
+	}
+
 	if (((!gps.location.isValid()) || (age > 3000)) && (storage.isDebug == 0)) {
 		Serial.print(F(" Invalid position"));
 		validGPS = 0;
 	} else {
 		validGPS = 1;
 		if (lastPttPressed == 0)
-			if ((buttonPressed == 1) || ((millis() - lastUpdate) / 1000 > FlexibleDelay))
+			if ((buttonPressed == 1) || ((millis() - lastUpdate) / 1000 > FlexibleDelay) || (SB == 1))
 			{
 				lastUpdate = millis();
 				showDisplay(flat, flon, 1);
@@ -162,9 +185,10 @@ void loop() {
 				Serial.print(F("Send beacon:"));
 				setDra(storage.aprsChannel, storage.aprsChannel, 0, 0);
 				delay(100);
-				locationUpdate(flat, flon);
+				locationUpdate(flat, flon, gps_kspeed, gps_course);
 				delay(500);
 				setDra(storage.rxChannel, storage.txChannel, storage.rxTone, storage.txTone);
+				if (SB == 1) SB = 0;
 			}
 	}
 	buttonPressed = 0;
@@ -372,11 +396,13 @@ void showDisplay(float flat, float flon, bool isTX) {
 	}
 }
 
-void locationUpdate(float flat, float flon) {
+void locationUpdate(float flat, float flon, unsigned long kspeed, unsigned long kcourse) {
 	gps_dra.end();
 
 	Beacon.setLat(deg_to_nmea(flat,true));
 	Beacon.setLon(deg_to_nmea(flon,false));
+	Beacon.setKspeed(kspeed);
+	Beacon.setCourse(kcourse);
 
 	// We can optionally set power/height/gain/directivity
 	// information. These functions accept ranges
@@ -843,6 +869,7 @@ static void smartDelay(unsigned long ms)
 {
 	int pttValue = 1000;
 	unsigned long start = millis();
+	gps_dra.flush();
 	do
 	{
 		while (gps_dra.available()) gps.encode(gps_dra.read());
@@ -1020,6 +1047,8 @@ void setup() {
 	Beacon.setDirectivity(storage.directivity);
 	Beacon.setPreamble(storage.preAmble);
 	Beacon.setTail(storage.tail);
+	Beacon.setKspeed(storage.gps_kspeed);
+	Beacon.setCourse(storage.gps_course);
 
 	Updatedelay = storage.interval * storage.multiplier;
 
