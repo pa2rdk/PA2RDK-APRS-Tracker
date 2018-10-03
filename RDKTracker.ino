@@ -1,5 +1,6 @@
-//Version 2.3 -- 10/08/2018
-//Inbouw smart beaconing en Mice by Frank CNO
+//Version 2.4 -- 10/08/2018
+//2.4 - Added turn off Pre/de-emphasis, Highpass, Lowpass filter
+//2.3 - Inbouw smart beaconing en Mice by Frank CNO
 
 #include <RDKAPRS.h>
 #include <SoftwareSerial.h>
@@ -1052,6 +1053,7 @@ void setup() {
 	setDra(storage.rxChannel, storage.txChannel, storage.rxTone, storage.txTone);
 	gps_dra.println(F("AT+DMOSETVOLUME=8"));
 	gps_dra.println(F("AT+DMOSETMIC=8,0"));
+	gps_dra.println(F("AT+SETFILTER=1,1,1"));
 
 	Serial.println(F("Sats HDOP Latitude   Longitude   Fix  Date       Time     Date Alt    Course Speed Dir   Interval"));
 	Serial.println(F("          (deg)      (deg)       Age                      Age  (m)    --- from GPS ---   (sec)   "));
