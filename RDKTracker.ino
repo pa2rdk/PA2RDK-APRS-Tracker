@@ -1,4 +1,5 @@
-//Version 2.4 -- 10/08/2018
+//Version 2.5 -- 04/11/2018
+//2.5 - Added No APRS timeout after PTT
 //2.4 - Added turn off Pre/de-emphasis, Highpass, Lowpass filter
 //2.3 - Inbouw smart beaconing en Mice by Frank CNO
 
@@ -34,6 +35,7 @@ bool validGPS = 1;
 bool pttPressed = 0;
 bool lastPttPressed = 0;
 bool isInverted = 0;
+long NoAPRSAfterPTTTime = 0;
 int pttOffValue = 0;
 
 long startTimeOutMillis = 0;
@@ -77,6 +79,7 @@ struct StoreStruct {
 	byte tail;
 	byte doTX;
 	byte BcnAfterTX;
+	byte NoAPRSAfterPTT;
 	byte txTimeOut;
 	byte isDebug;
 };
@@ -107,6 +110,9 @@ StoreStruct storage = {
 		90,
 		10,
 		1,
+		0,
+		120,
+		120,
 		0
 };
 
@@ -166,12 +172,18 @@ void loop() {
 		old_course = gps_course;
 	}
 
+	if (NoAPRSAfterPTTTime>0 && millis()>NoAPRSAfterPTTTime){
+		NoAPRSAfterPTTTime=0;
+		Serial.println();
+		Serial.println(F("Re-enable APRS after PTT"));
+	}
+
 	if (((!gps.location.isValid()) || (age > 3000)) && (storage.isDebug == 0)) {
 		Serial.print(F(" Invalid position"));
 		validGPS = 0;
 	} else {
 		validGPS = 1;
-		if (lastPttPressed == 0)
+		if (lastPttPressed == 0 && NoAPRSAfterPTTTime == 0)
 			if ((buttonPressed == 1) || ((millis() - lastUpdate) / 1000 > FlexibleDelay) || (SB == 1))
 			{
 				lastUpdate = millis();
@@ -207,6 +219,13 @@ void loop() {
 			digitalWrite(MicPwr, LOW);                         //Mike off
 			digitalWrite(ledPin, LOW);
 			if (storage.BcnAfterTX==1) buttonPressed = 1;
+			if (storage.NoAPRSAfterPTT>0){
+				NoAPRSAfterPTTTime=millis()+long(storage.NoAPRSAfterPTT)*1000;
+				buttonPressed=0;
+				Serial.println();
+				Serial.print(F("Disable APRS after PTT until:"));
+				Serial.println(NoAPRSAfterPTTTime);
+			}
 		}
 	}
 	currentTimeOutMillis = millis();
@@ -749,6 +768,15 @@ void setSettings(bool doSet) {
 	if (doSet == 1) {
 		i = getNumericValue();
 		if (receivedString[0] != 0) storage.BcnAfterTX = i;
+	}
+	Serial.println();
+
+	Serial.print(F("No APRS after PTT in sec's ("));
+	Serial.print(storage.NoAPRSAfterPTT);
+	Serial.print(F("): "));
+	if (doSet == 1) {
+		i = getNumericValue();
+		if (receivedString[0] != 0) storage.NoAPRSAfterPTT = i;
 	}
 	Serial.println();
 
