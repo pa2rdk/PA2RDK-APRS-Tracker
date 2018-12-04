@@ -1,4 +1,5 @@
-//Version 2.5 -- 04/11/2018
+//Version 2.6 -- 04/12/2018
+//2.6 - Added SQL to remote display
 //2.5 - Added No APRS timeout after PTT
 //2.4 - Added turn off Pre/de-emphasis, Highpass, Lowpass filter
 //2.3 - Inbouw smart beaconing en Mice by Frank CNO
@@ -335,6 +336,8 @@ void printRemote(float flat, float flon, bool isTX){
 	Wire.write(tempbuffer[3]);
 	Wire.write(byte(storage.ssid));
 	Wire.write(byte(storage.symbool));
+	Wire.write("#");
+	Wire.write(byte(digitalRead(sqlPin)));
 	Wire.print(storage.call);
 	Wire.endTransmission();
 }
