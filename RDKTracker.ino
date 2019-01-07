@@ -1,4 +1,5 @@
-//Version 2.6 -- 04/12/2018
+//Version 2.7 -- 07/01/2019
+//2.7 - Added Reactivate APRS timeout if SQL = 0
 //2.6 - Added SQL to remote display
 //2.5 - Added No APRS timeout after PTT
 //2.4 - Added turn off Pre/de-emphasis, Highpass, Lowpass filter
@@ -173,11 +174,14 @@ void loop() {
 		old_course = gps_course;
 	}
 
-	if (NoAPRSAfterPTTTime>0 && millis()>NoAPRSAfterPTTTime){
-		NoAPRSAfterPTTTime=0;
-		Serial.println();
-		Serial.println(F("Re-enable APRS after PTT"));
+	if (NoAPRSAfterPTTTime>0){
+		if (millis()>long(storage.NoAPRSAfterPTT)*1000+NoAPRSAfterPTTTime || (digitalRead(sqlPin)==1 && millis()>NoAPRSAfterPTTTime+10000)){
+			NoAPRSAfterPTTTime=0;
+			Serial.println();
+			Serial.println(F("Re-enable APRS after PTT"));
+		}
 	}
+
 
 	if (((!gps.location.isValid()) || (age > 3000)) && (storage.isDebug == 0)) {
 		Serial.print(F(" Invalid position"));
@@ -221,7 +225,7 @@ void loop() {
 			digitalWrite(ledPin, LOW);
 			if (storage.BcnAfterTX==1) buttonPressed = 1;
 			if (storage.NoAPRSAfterPTT>0){
-				NoAPRSAfterPTTTime=millis()+long(storage.NoAPRSAfterPTT)*1000;
+				NoAPRSAfterPTTTime=millis();
 				buttonPressed=0;
 				Serial.println();
 				Serial.print(F("Disable APRS after PTT until:"));
