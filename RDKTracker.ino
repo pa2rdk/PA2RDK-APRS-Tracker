@@ -9,7 +9,6 @@
 #include <SoftwareSerial.h>
 #include <TinyGPS++.h>
 #include <TimerOne.h>
-#include <Wire.h>
 #include <EEPROM.h>
 #include <LiquidCrystal_SSD1306.h>
 
@@ -23,7 +22,13 @@
 #define rxPin   8   //rx pin into TX GPS connection
 #define txPin   9   //tx pin into RX GPS connection
 
-#define offsetEEPROM 0x0    //offset config
+#define offsetEEPROM 	0x0    //offset config
+#define EEPROM_SIZE 	184
+//#define hasRemote
+
+#ifdef hasRemote
+#include <Wire.h>
+#endif
 
 TinyGPSPlus gps;
 SoftwareSerial gps_dra(rxPin, txPin);  // RX from GPS (blue), TX to DRA (pin 8)
@@ -193,7 +198,9 @@ void loop() {
 			{
 				lastUpdate = millis();
 				showDisplay(flat, flon, 1);
+        #ifdef hasRemote
 				printRemote(flat, flon, 1);
+        #endif
 				Serial.println("");
 				Serial.print(F("Send beacon:"));
 				setDra(storage.aprsChannel, storage.aprsChannel, 0, 0);
@@ -206,7 +213,10 @@ void loop() {
 	}
 	buttonPressed = 0;
 	showDisplay(flat, flon, 0);
-	printRemote(flat, flon, 0);
+  #ifdef hasRemote
+  printRemote(flat, flon, 0);
+  #endif
+	
 
 	smartDelay(2000);
 	if (lastPttPressed != pttPressed) {
@@ -246,6 +256,7 @@ void loop() {
 	if (lastPttPressed == 1) Serial.println(F(" TX")); else Serial.println(F(" RX"));
 }
 
+#ifdef hasRemote
 void printRemote(float flat, float flon, bool isTX){
 	Wire.beginTransmission(9);
 	int error = Wire.endTransmission();
@@ -345,6 +356,7 @@ void printRemote(float flat, float flon, bool isTX){
 	Wire.print(storage.call);
 	Wire.endTransmission();
 }
+#endif
 
 void showDisplay(float flat, float flon, bool isTX) {
 	if (lastPttPressed == 1) {
@@ -1098,13 +1110,3 @@ void setup() {
 
 	timeOutTimerMillis = (long)storage.txTimeOut*1000;
 }
-
-
-
-
-
-
-
-
-
-
