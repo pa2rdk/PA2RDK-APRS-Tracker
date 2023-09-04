@@ -1,4 +1,6 @@
-//Version 2.7 -- 07/01/2019
+//Version 4.0 -- 03/09/2023
+//4.0 - Make Wire switchable
+//      Delay around startup of display
 //2.7 - Added Reactivate APRS timeout if SQL = 0
 //2.6 - Added SQL to remote display
 //2.5 - Added No APRS timeout after PTT
@@ -114,13 +116,13 @@ StoreStruct storage = {
 		0,
 		0,
 		0,
-		90,
-		10,
+		20,
+		20,
 		1,
 		0,
 		120,
 		120,
-		0
+		1
 };
 
 
@@ -259,6 +261,7 @@ void loop() {
 #ifdef hasRemote
 void printRemote(float flat, float flon, bool isTX){
 	Wire.beginTransmission(9);
+  
 	int error = Wire.endTransmission();
 	if (error == 0)
 	{
@@ -1026,9 +1029,14 @@ void beginLCD() {
 
 void setup() {
 	Serial.begin(9600);
-	Wire.begin();
+  
+  #ifdef hasRemote
+  Wire.begin();
+  #endif
+
+  delay(100);
 	beginLCD();
-	delay(1);
+	delay(100);
 	lcd.setCursor(0,0);
 	setBigSize(true);
 	setLCDReverse(true);
@@ -1036,7 +1044,7 @@ void setup() {
 	setBigSize(false);
 	setLCDReverse(false);
 	lcd.setCursor(0,2);
-	lcd.print(F("  TRACKER v3.2NL  "));    //intro
+	lcd.print(F("  TRACKER v4.0NL  "));    //intro
 	pinMode(bfPin, OUTPUT);
 	pinMode(PTT, OUTPUT);
 	digitalWrite(PTT, LOW);
