@@ -23,6 +23,7 @@
 #define PTTPin  7   //PTT switch pin
 #define rxPin   8   //rx pin into TX GPS connection
 #define txPin   9   //tx pin into RX GPS connection
+#define hasRemote
 
 #define offsetEEPROM 	0x0    //offset config
 #define EEPROM_SIZE 	184
@@ -1005,11 +1006,14 @@ static void printStr(const char *str, int len)
 
 void setDra(byte rxFreq, byte txFreq, byte rxTone, byte txTone) {
 	char buff[50];
-	int txPart, rxPart;
-	if(txFreq>79) txPart = txFreq-80; else txPart=txFreq;
-	if(rxFreq>79) rxPart = rxFreq-80; else rxPart=rxFreq;
 
-	sprintf(buff,"AT+DMOSETGROUP=0,14%01d.%04d,14%01d.%04d,%04d,1,%04d",int(txFreq/80)+4,txPart*125,int(rxFreq/80)+4,rxPart*125,txTone,rxTone);
+  int txPart = txFreq;
+  while (txPart>79) txPart = txPart - 80;
+  int rxPart = rxFreq;
+  while (rxPart>79) rxPart = rxPart - 80;
+  sprintf(buff,"AT+DMOSETGROUP=0,14%01d.%04d,14%01d.%04d,%04d,1,%04d",int(txFreq/80)+4,txPart*125,int(rxFreq/80)+4,rxPart*125,txTone,rxTone);
+  // voor 70cm: sprintf(buff,"AT+DMOSETGROUP=0,43%01d.%04d,43%01d.%04d,%04d,1,%04d",int(txFreq/80),txPart*125,int(rxFreq/80),rxPart*125,txTone,rxTone);
+
 	Serial.println();
 	Serial.println(buff);
 	gps_dra.println(buff);
